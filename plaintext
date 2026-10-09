@@ -13,3 +13,13 @@ bolokaam-backend/
 ├── .env
 ├── package.json
 └── server.js
+bolokaam-cron/
+├── config/
+│   ├── db.js
+│   └── firebase.js
+├── jobs/
+│   └── dispatchPings.js
+├── serviceAccountKey.json
+├── .env
+├── package.json
+└── index.js
