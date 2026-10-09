@@ -13,7 +13,7 @@ html:not([lang="en"]) h1,html:not([lang="en"]) h2{letter-spacing:0;line-height:1
 </head>
 <body>
 <div class="wrap">
-<header><a class="brand" href="#" aria-label="BoloKaam home"><span class="logo" aria-hidden="true"><i></i><i></i><i></i><i></i></span>BoloKaam</a><nav aria-label="Main navigation"><a href="#how-it-works" data-i18n="navHow">How it works</a><a class="nav-pill" href="#night-before" data-i18n="navTomorrow">Tomorrow’s work</a><label class="language-picker"><span aria-hidden="true">🌐</span><select id="language-select" aria-label="Choose language"><option value="en">English</option><option value="hi">हिन्दी</option><option value="pa">ਪੰਜਾਬੀ</option><option value="mr">मराठी</option><option value="bn">বাংলা</option><option value="ta">தமிழ்</option><option value="te">తెలుగు</option><option value="gu">ગુજરાતી</option><option value="kn">ಕನ್ನಡ</option><option value="ml">മലയാളം</option><option value="or">ଓଡ଼ିଆ</option><option value="ur">اردو</option></select></label></nav></header>
+<header><a class="brand" href="#" aria-label="BoloKaam home"><span class="logo" aria-hidden="true"><i></i><i></i><i></i><i></i></span>BoloKaam</a><nav aria-label="Main navigation"><a href="#how-it-works" data-i18n="navHow">How it works</a><a class="nav-pill" href="#night-before" data-i18n="navTomorrow">Tomorrow’s work</a><label class="language-picker"><span aria-hidden="true">🌐</span><select id="language-select" aria-label="Choose language"><option value="hi" selected>हिन्दी</option><option value="bn">বাংলা</option><option value="en">English</option><option value="pa">ਪੰਜਾਬੀ</option><option value="mr">मराठी</option><option value="ta">தமிழ்</option><option value="te">తెలుగు</option><option value="gu">ગુજરાતી</option><option value="kn">ಕನ್ನಡ</option><option value="ml">മലയാളം</option><option value="or">ଓଡ଼ିଆ</option><option value="ur">اردو</option></select></label></nav></header>
 <main>
 <section class="hero" aria-labelledby="hero-title">
 <div><div class="eyebrow"><span class="dot"></span><span data-i18n="eyebrow">Your voice. Your next job.</span></div>
@@ -61,10 +61,10 @@ for(const [code,p] of Object.entries(regionalPhrases)){
 }
 
 const status=document.getElementById('audio-status'),phone=document.getElementById('demo-phone'),picker=document.getElementById('language-select');
-let language='en',audioSession=0;
+let language='hi',audioSession=0;
 const copy=key=>translations[language][key];
 function setLanguage(next){
- if(!translations[next])next='en';
+ if(!translations[next])next='hi';
  audioSession++;if('speechSynthesis' in window)window.speechSynthesis.cancel();phone.classList.remove('playing');
  language=next;document.documentElement.lang=next;document.documentElement.dir=next==='ur'?'rtl':'ltr';picker.value=next;
  document.querySelectorAll('[data-i18n]').forEach(el=>el.innerHTML=copy(el.dataset.i18n));
@@ -73,7 +73,7 @@ function setLanguage(next){
  status.textContent='';try{localStorage.setItem('bolokaam-language',next);}catch{}
 }
 picker.addEventListener('change',()=>setLanguage(picker.value));
-let savedLanguage='en';try{savedLanguage=localStorage.getItem('bolokaam-language')||'en';}catch{}setLanguage(savedLanguage);
+let savedLanguage='hi';try{savedLanguage=localStorage.getItem('bolokaam-language')||'hi';}catch{}setLanguage(savedLanguage);
 function speak(text){
  if(!('speechSynthesis' in window)){status.textContent=copy('unavailable');document.getElementById('hero-title').scrollIntoView({behavior:'smooth'});return;}
  const session=++audioSession;window.speechSynthesis.cancel();phone.classList.remove('playing');
