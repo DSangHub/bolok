@@ -328,3 +328,16 @@ if (process.env.NODE_ENV === 'development') {
   console.log('Running test dispatch in development mode...');
   executePingDispatch();
 }
+const config = {
+  encoding: 'WEBM_OPUS',
+  sampleRateHertz: 48000,
+  languageCode: 'hi-IN', // Default primary fallback
+  // Enables multi-dialect auto-detection for the Indian blue-collar workforce
+  alternativeLanguageCodes: [
+    'hi-IN', 'pa-IN', 'mr-IN', 'bn-IN', 
+    'ta-IN', 'te-IN', 'gu-IN', 'kn-IN', 
+    'ml-IN', 'or-IN', 'ur-IN', 'en-IN'
+  ],
+  enableAutomaticPunctuation: true,
+  model: 'chirp' // Google Cloud Chirp 2 model for low-resource regional dialects
+};
