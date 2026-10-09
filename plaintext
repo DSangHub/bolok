@@ -1,0 +1,15 @@
+bolokaam-backend/
+├── config/
+│   ├── gcp.js
+│   └── razorpay.js
+├── middleware/
+│   └── upload.js
+├── routes/
+│   ├── voice.js
+│   └── payment.js
+├── services/
+│   ├── speechService.js
+│   └── razorpayService.js
+├── .env
+├── package.json
+└── server.js
