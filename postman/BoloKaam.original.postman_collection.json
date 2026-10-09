@@ -1,20 +1,13 @@
 {
   "info": {
-    "name": "BoloKaam API — Vercel",
-    "description": "Voice-first REST API backend for bolokaam.app, serving blue-collar workers, contractors, and logistics providers in India. Includes endpoints for voice processing, job listings, 5:00 AM dispatch matches, and Razorpay billing.\nImported from D Sang's Workspace. Vercel adapter: jobs requests are planned and not yet implemented; saved responses are examples, not live results. Configure provider credentials and BOLOK_API_TOKEN before calling protected routes.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "_postman_id": "8fdfcb8f-86d8-43a0-ae74-1d5e750d8203",
+    "name": "BoloKaam API",
+    "description": "Voice-first REST API backend for bolokaam.app, serving blue-collar workers, contractors, and logistics providers in India. Includes endpoints for voice processing, job listings, 5:00 AM dispatch matches, and Razorpay billing.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58848086",
+    "_collection_link": "https://go.postman.co/collection/58848086-8fdfcb8f-86d8-43a0-ae74-1d5e750d8203?source=collection_link"
   },
   "item": [
-    {
-      "name": "Health",
-      "request": {
-        "method": "GET",
-        "auth": {
-          "type": "noauth"
-        },
-        "url": "{{baseUrl}}/health"
-      }
-    },
     {
       "name": "voice",
       "item": [
@@ -27,6 +20,10 @@
                 "method": "POST",
                 "header": [
                   {
+                    "key": "Content-Type",
+                    "value": "multipart/form-data"
+                  },
+                  {
                     "key": "Accept",
                     "value": "application/json"
                   }
@@ -35,10 +32,10 @@
                   "mode": "formdata",
                   "formdata": [
                     {
-                      "description": "WebM/Opus or WAV audio, max 4MB.",
+                      "description": "Audio recording file (max 10MB)",
                       "key": "audio",
                       "type": "file",
-                      "src": []
+                      "value": null
                     },
                     {
                       "description": "Primary BCP-47 language code (e.g., hi-IN, pa-IN, mr-IN, ta-IN, te-IN, bn-IN)",
@@ -58,11 +55,11 @@
                     "process"
                   ]
                 },
-                "description": "Transcribes WebM/Opus or WAV audio with Google Speech-to-Text. Does not extract intent/slots."
+                "description": "Ingests user voice audio stream (WebM/Opus or WAV), transcribes it into text using Google Speech-to-Text (Chirp Indic models), and extracts intent/slots."
               },
               "response": [
                 {
-                  "name": "[Example] Audio successfully processed and transcribed",
+                  "name": "Audio successfully processed and transcribed",
                   "originalRequest": {
                     "method": "POST",
                     "header": [
@@ -115,7 +112,7 @@
                   "body": "{\n  \"success\": true,\n  \"transcript\": \"Mujhe kal subah construction site ke liye 2 mazdoor chahiye\",\n  \"audioSizeKb\": 128,\n  \"detectedLanguage\": \"hi-IN\"\n}"
                 },
                 {
-                  "name": "[Example] Missing or invalid audio file format",
+                  "name": "Missing or invalid audio file format",
                   "originalRequest": {
                     "method": "POST",
                     "header": [
@@ -168,7 +165,7 @@
                   "body": "{\n  \"success\": false,\n  \"error\": \"Invalid audio buffer or missing parameters\"\n}"
                 },
                 {
-                  "name": "[Example] Speech-to-Text processing failure",
+                  "name": "Speech-to-Text processing failure",
                   "originalRequest": {
                     "method": "POST",
                     "header": [
@@ -230,7 +227,7 @@
       "name": "jobs",
       "item": [
         {
-          "name": "[PLANNED] Create a new job posting",
+          "name": "Create a new job posting",
           "request": {
             "method": "POST",
             "header": [
@@ -262,11 +259,11 @@
                 "jobs"
               ]
             },
-            "description": "Not implemented in the deployed API. Original contract and examples preserved for future database integration."
+            "description": "Allows contractors/businesses to create a new job posting with audio description and PostGIS location."
           },
           "response": [
             {
-              "name": "[Example] Job posting successfully created",
+              "name": "Job posting successfully created",
               "originalRequest": {
                 "method": "POST",
                 "header": [
@@ -312,7 +309,7 @@
               "body": "{\n  \"success\": true,\n  \"job\": {\n    \"id\": \"7123fd14-5f7c-d8cf-9e5c-f3f8efc4b4f0\",\n    \"employerId\": \"b77ef9a3-b068-699e-729d-aef0bc981bae\",\n    \"category\": \"string\",\n    \"dailyWage\": 5375.376036406361,\n    \"status\": \"cancelled\",\n    \"createdAt\": \"1965-07-08T06:12:54.004Z\"\n  }\n}"
             },
             {
-              "name": "[Example] Invalid job input data",
+              "name": "Invalid job input data",
               "originalRequest": {
                 "method": "POST",
                 "header": [
@@ -360,7 +357,7 @@
           ]
         },
         {
-          "name": "[PLANNED] Search active jobs nearby",
+          "name": "Search active jobs nearby",
           "request": {
             "method": "GET",
             "header": [
@@ -396,11 +393,11 @@
                 }
               ]
             },
-            "description": "Not implemented in the deployed API. Original contract and examples preserved for future database integration."
+            "description": "Spatial search query for finding active jobs within a specified radius using PostGIS."
           },
           "response": [
             {
-              "name": "[Example] List of nearby active jobs",
+              "name": "List of nearby active jobs",
               "originalRequest": {
                 "method": "GET",
                 "header": [
@@ -497,7 +494,7 @@
               },
               "response": [
                 {
-                  "name": "[Example] Razorpay Order initialized successfully",
+                  "name": "Razorpay Order initialized successfully",
                   "originalRequest": {
                     "method": "POST",
                     "header": [
@@ -544,7 +541,7 @@
                   "body": "{\n  \"success\": true,\n  \"order\": {\n    \"id\": \"order_N3kX2d8LpQeR1A\",\n    \"entity\": \"order\",\n    \"amount\": 50000,\n    \"currency\": \"INR\",\n    \"receipt\": \"rcpt_job_7e2a94f0\",\n    \"status\": \"created\"\n  }\n}"
                 },
                 {
-                  "name": "[Example] Razorpay API error",
+                  "name": "Razorpay API error",
                   "originalRequest": {
                     "method": "POST",
                     "header": [
@@ -613,7 +610,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"razorpay_order_id\": \"{{orderId}}\",\n  \"razorpay_payment_id\": \"{{paymentId}}\",\n  \"razorpay_signature\": \"{{signature}}\"\n}",
+                  "raw": "{\n  \"razorpay_order_id\": \"order_N3kX2d8LpQeR1A\",\n  \"razorpay_payment_id\": \"pay_N3kY8f1MsLzK2B\",\n  \"razorpay_signature\": \"a7b6c5d4e3f2109887766554433221100fdedcba9876543210\"\n}",
                   "options": {
                     "raw": {
                       "headerFamily": "json",
@@ -631,11 +628,11 @@
                     "verify"
                   ]
                 },
-                "description": "Checks a checkout signature only. Does not confirm captured funds or activate a job."
+                "description": "Validates transaction payload signatures received from mobile app checkout before activating job posts."
               },
               "response": [
                 {
-                  "name": "[Example] Signature verified successfully",
+                  "name": "Signature verified successfully",
                   "originalRequest": {
                     "method": "POST",
                     "header": [
@@ -682,7 +679,7 @@
                   "body": "{\n  \"success\": true,\n  \"message\": \"Payment verified successfully\"\n}"
                 },
                 {
-                  "name": "[Example] Invalid payment signature",
+                  "name": "Invalid payment signature",
                   "originalRequest": {
                     "method": "POST",
                     "header": [
@@ -738,22 +735,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "https://bolok-nine.vercel.app/api"
-    },
-    {
-      "key": "apiToken",
-      "value": "",
-      "type": "string"
+      "value": "https://api.bolokaam.app/v1"
     }
-  ],
-  "auth": {
-    "type": "bearer",
-    "bearer": [
-      {
-        "key": "token",
-        "value": "{{apiToken}}",
-        "type": "string"
-      }
-    ]
-  }
+  ]
 }
