@@ -5,7 +5,7 @@ export async function POST(request){
  const audio=form.get('audio'),language=form.get('language')||'hi-IN';
  if(!audio||typeof audio.arrayBuffer!=='function'||audio.size===0)return json({success:false,error:'Audio file is required'},400);
  if(audio.size>4*1024*1024)return json({success:false,error:'Audio must be 4MB or smaller'},413);
- if(!['hi-IN','pa-IN','mr-IN','ta-IN','te-IN','bn-IN','gu-IN','kn-IN','ml-IN','en-IN'].includes(language))return json({success:false,error:'Unsupported language'},400);
+ if(!['hi-IN','pa-IN','mr-IN','ta-IN','te-IN','bn-IN','gu-IN','kn-IN','ml-IN','or-IN','ur-IN','en-IN'].includes(language))return json({success:false,error:'Unsupported language'},400);
  const encoding=audio.type.includes('webm')?'WEBM_OPUS':audio.type.includes('wav')?'LINEAR16':null;
  if(!encoding)return json({success:false,error:'Use WebM/Opus or WAV audio'},400);
  if(!process.env.GOOGLE_SERVICE_ACCOUNT_JSON)return json({success:false,error:'Speech recognition is not configured'},503);
