@@ -1,0 +1,95 @@
+{
+  "info": {
+    "name": "BoloKaam Vercel API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Generated from existing repository endpoints. Jobs are not implemented."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://bolok-nine.vercel.app"
+    },
+    {
+      "key": "apiToken",
+      "value": ""
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{apiToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/health",
+        "auth": {
+          "type": "noauth"
+        }
+      }
+    },
+    {
+      "name": "Transcribe audio",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/voice/process",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "audio",
+              "type": "file",
+              "src": []
+            },
+            {
+              "key": "language",
+              "value": "hi-IN",
+              "type": "text"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "create-order",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/payment/create-order",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 500,\n  \"jobId\": \"7e2a94f0-43f9-4b68-98e3-a1d2932f91bc\"\n}"
+        }
+      }
+    },
+    {
+      "name": "verify",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/payment/verify",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"razorpay_order_id\": \"{{orderId}}\",\n  \"razorpay_payment_id\": \"{{paymentId}}\",\n  \"razorpay_signature\": \"{{signature}}\"\n}"
+        }
+      }
+    }
+  ]
+}

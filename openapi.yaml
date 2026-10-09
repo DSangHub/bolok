@@ -1,0 +1,358 @@
+openapi: 3.0.3
+info:
+  title: BoloKaam API
+  description: >-
+    Voice-first REST API backend for bolokaam.app, serving blue-collar workers,
+    contractors, and logistics providers in India. Includes endpoints for voice
+    processing, job listings, 5:00 AM dispatch matches, and Razorpay billing.
+  version: 1.0.0
+servers:
+  - url: https://bolok-nine.vercel.app/api
+    description: Production Server
+  - url: http://localhost:3000/api
+    description: Local Development Server
+
+paths:
+  /voice/process:
+    post:
+      summary: Upload audio recording for speech-to-text processing
+      description: >-
+        Ingests user voice audio stream (WebM/Opus or WAV), transcribes it into text
+        using Google Speech-to-Text (Chirp Indic models), and extracts intent/slots.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - audio
+              properties:
+                audio:
+                  type: string
+                  format: binary
+                  description: Audio recording file (max 4MB)
+                language:
+                  type: string
+                  example: hi-IN
+                  default: hi-IN
+                  description: >-
+                    Primary BCP-47 language code (e.g., hi-IN, pa-IN, mr-IN, ta-IN, te-IN, bn-IN)
+      responses:
+        '200':
+          description: Audio successfully processed and transcribed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  transcript:
+                    type: string
+                    example: Mujhe kal subah construction site ke liye 2 mazdoor chahiye
+                  audioSizeKb:
+                    type: integer
+                    example: 128
+                  detectedLanguage:
+                    type: string
+                    example: hi-IN
+        '400':
+          description: Missing or invalid audio file format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Speech-to-Text processing failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /jobs:
+    post:
+      summary: Create a new job posting
+      description: Allows contractors/businesses to create a new job posting with audio description and PostGIS location.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobCreateRequest'
+      responses:
+        '201':
+          description: Job posting successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  job:
+                    $ref: '#/components/schemas/Job'
+        '400':
+          description: Invalid job input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      summary: Search active jobs nearby
+      description: Spatial search query for finding active jobs within a specified radius using PostGIS.
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+            example: 28.6139
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+            example: 77.2090
+        - name: radius_km
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            example: 5
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            example: mason
+      responses:
+        '200':
+          description: List of nearby active jobs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                    example: 3
+                  jobs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/JobNearbyResponse'
+
+  /payment/create-order:
+    post:
+      summary: Create Razorpay Order for job listing fee / daily wage deposit
+      description: Interacts with Razorpay Orders API to initialize a checkout session for contractors.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+                - jobId
+              properties:
+                amount:
+                  type: number
+                  description: Amount in INR
+                  example: 500.00
+                jobId:
+                  type: string
+                  format: uuid
+                  example: 7e2a94f0-43f9-4b68-98e3-a1d2932f91bc
+      responses:
+        '200':
+          description: Razorpay Order initialized successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  order:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: order_N3kX2d8LpQeR1A
+                      entity:
+                        type: string
+                        example: order
+                      amount:
+                        type: integer
+                        example: 50000
+                      currency:
+                        type: string
+                        example: INR
+                      receipt:
+                        type: string
+                        example: rcpt_job_7e2a94f0
+                      status:
+                        type: string
+                        example: created
+        '500':
+          description: Razorpay API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /payment/verify:
+    post:
+      summary: Verify Razorpay HMAC-SHA256 signature
+      description: Validates transaction payload signatures received from mobile app checkout before activating job posts.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - razorpay_order_id
+                - razorpay_payment_id
+                - razorpay_signature
+              properties:
+                razorpay_order_id:
+                  type: string
+                  example: order_N3kX2d8LpQeR1A
+                razorpay_payment_id:
+                  type: string
+                  example: pay_N3kY8f1MsLzK2B
+                razorpay_signature:
+                  type: string
+                  example: a7b6c5d4e3f2109887766554433221100fdedcba9876543210
+      responses:
+        '200':
+          description: Signature verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Payment verified successfully
+        '400':
+          description: Invalid payment signature
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    JobCreateRequest:
+      type: object
+      required:
+        - employerId
+        - category
+        - dailyWage
+        - workDate
+        - latitude
+        - longitude
+      properties:
+        employerId:
+          type: string
+          format: uuid
+          example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        category:
+          type: string
+          example: mason
+        jobAudioPromptUrl:
+          type: string
+          example: https://storage.googleapis.com/bolokaam-audio/jobs/prompt_123.webm
+        transcribedText:
+          type: string
+          example: Need 2 experienced masons for wall construction.
+        workersNeeded:
+          type: integer
+          default: 1
+          example: 2
+        dailyWage:
+          type: number
+          example: 500.00
+        workDate:
+          type: string
+          format: date
+          example: '2026-10-10'
+        latitude:
+          type: number
+          format: double
+          example: 28.6139
+        longitude:
+          type: number
+          format: double
+          example: 77.2090
+        locationAddress:
+          type: string
+          example: Near Sitaram Building, Main Market, Sector 12
+
+    Job:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        employerId:
+          type: string
+          format: uuid
+        category:
+          type: string
+        dailyWage:
+          type: number
+        status:
+          type: string
+          enum: [draft, active, filled, completed, cancelled]
+        createdAt:
+          type: string
+          format: date-time
+
+    JobNearbyResponse:
+      type: object
+      properties:
+        jobId:
+          type: string
+          format: uuid
+        category:
+          type: string
+          example: driver
+        dailyWage:
+          type: number
+          example: 650.00
+        jobAudioPromptUrl:
+          type: string
+          example: https://storage.googleapis.com/bolokaam-audio/jobs/prompt_456.webm
+        distanceKm:
+          type: number
+          example: 3.25
+        locationAddress:
+          type: string
+          example: Mandi Gate No. 2, Transport Nagar
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: Invalid audio buffer or missing parameters
